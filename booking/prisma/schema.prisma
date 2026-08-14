@@ -16,6 +16,11 @@ enum Role {
   ADMIN
 }
 
+enum AppointmentStatus {
+  CONFIRMED
+  CANCELLED
+}
+
 model User {
   id           String    @id @default(cuid())
   email        String    @unique
@@ -25,6 +30,23 @@ model User {
   createdAt    DateTime  @default(now())
   services     Service[]
   availability Availability[]
+  appointments Appointment[]
+}
+
+model Appointment {
+  id         String            @id @default(cuid())
+  serviceId  String
+  service    Service           @relation(fields: [serviceId], references: [id])
+  customerId String
+  customer   User              @relation(fields: [customerId], references: [id])
+  providerId String // denormalized for fast overlap checks per provider
+  startAt    DateTime
+  endAt      DateTime
+  status     AppointmentStatus @default(CONFIRMED)
+  createdAt  DateTime          @default(now())
+
+  @@index([providerId, status, startAt])
+  @@index([customerId])
 }
 
 model Availability {
@@ -48,6 +70,7 @@ model Service {
   durationMin Int
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
+  appointments Appointment[]
 
   @@index([category])
   @@index([providerId])
