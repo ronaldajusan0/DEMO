@@ -1,0 +1,31 @@
+name: Seed sprints & issues
+
+# Clone-and-go: when this repo is pushed to a new owner's GitHub, this creates
+# every sprint as a Milestone + its Issues automatically. It is idempotent —
+# existing milestones/issues are skipped, so it is safe to run on every push.
+#
+# Runs on push to the default branch, and can be triggered by hand from the
+# Actions tab (Run workflow).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "booking/sprints/*.json"
+      - ".github/workflows/seed-sprints.yml"
+  workflow_dispatch: {}
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create milestones + issues from booking/sprints/*.json
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash booking/scripts/create-issues.sh --all
