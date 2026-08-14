@@ -3,6 +3,13 @@
 // transaction fails to commit and we treat it as a conflict (409).
 import { prisma } from "@/lib/db";
 import type { BookingRepo, AppointmentRecord } from "./service";
+import type { CancelRepo } from "./cancel";
+
+export const prismaCancelRepo: CancelRepo = {
+  getById: (id) => prisma.appointment.findUnique({ where: { id } }),
+  cancel: (id) =>
+    prisma.appointment.update({ where: { id }, data: { status: "CANCELLED" } }),
+};
 
 export const prismaBookingRepo: BookingRepo = {
   getService: (id) =>
