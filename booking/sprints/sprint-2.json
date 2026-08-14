@@ -1,0 +1,30 @@
+{
+  "milestone": "Sprint 2 — Booking Flow",
+  "description": "Slot generation, booking with double-booking prevention, cancellation, my-bookings, and confirmation email. The core value.",
+  "issues": [
+    {
+      "area": "slots",
+      "title": "Slot generation: free slots inside availability",
+      "labels": ["agent-ready", "sprint-2", "slots"],
+      "body": "## Context\nSource: SPEC.md §5 rules, §7 GET /api/services/:id/slots. Pure domain logic — unit-testable without a DB.\n\n## Task\nImplement a `generateSlots(service, availability, existingAppointments, range)` function in `src/lib` and expose `GET /api/services/:id/slots?from&to`.\n\n## Acceptance criteria\n- [ ] Returns only slots fully inside an availability window for that weekday.\n- [ ] Excludes slots overlapping any CONFIRMED appointment.\n- [ ] Grid step defaults to 30 min; `endAt = startAt + durationMin`.\n- [ ] Pure-function unit tests cover boundaries (edge of window, back-to-back)."
+    },
+    {
+      "area": "booking",
+      "title": "Create appointment with double-booking prevention (409)",
+      "labels": ["agent-ready", "sprint-2", "booking", "security"],
+      "body": "## Context\nSource: SPEC.md §8. This is the integrity-critical path.\n\n## Task\nImplement `POST /api/appointments` (customer only). Create the appointment inside a DB transaction with an overlap check so two concurrent requests cannot both take the same provider slot.\n\n## Acceptance criteria\n- [ ] Booking a free slot returns 201 with a CONFIRMED appointment.\n- [ ] A second booking of the same slot returns 409.\n- [ ] Slot must be valid per slot generation (reject arbitrary times).\n- [ ] Test simulates the concurrent/duplicate case and asserts exactly one wins."
+    },
+    {
+      "area": "booking",
+      "title": "Cancel appointment (frees slot; blocked within 24h)",
+      "labels": ["agent-ready", "sprint-2", "booking"],
+      "body": "## Context\nSource: SPEC.md §3.6, §8.\n\n## Task\nImplement `POST /api/appointments/:id/cancel` (owner only). Set status CANCELLED and free the slot; reject if start is within 24h.\n\n## Acceptance criteria\n- [ ] Only the owning customer can cancel (403 otherwise).\n- [ ] Cancelling frees the slot for others.\n- [ ] Cancelling within 24h of start returns 403.\n- [ ] Tests cover ownership + the 24h boundary."
+    },
+    {
+      "area": "customer",
+      "title": "My bookings page + confirmation email",
+      "labels": ["agent-ready", "sprint-2", "customer"],
+      "body": "## Context\nSource: SPEC.md §3.5, §6 /me/bookings, §7 GET /api/appointments/me.\n\n## Task\nBuild `/me/bookings` (upcoming + past, with cancel) backed by `GET /api/appointments/me`, and send a confirmation email on booking (use a provider abstraction so the demo runs without real email).\n\n## Acceptance criteria\n- [ ] Customer sees only their own appointments.\n- [ ] Booking triggers a confirmation email via an injectable email sender.\n- [ ] Email sender is faked in tests (assert it was called with the right data).\n- [ ] No PII logged."
+    }
+  ]
+}

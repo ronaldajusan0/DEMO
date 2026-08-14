@@ -1,0 +1,30 @@
+{
+  "milestone": "Sprint 1 — Foundation & Catalog",
+  "description": "Auth, service catalog, and provider availability. The base everyone books on top of.",
+  "issues": [
+    {
+      "area": "foundation",
+      "title": "Project scaffold: Next.js + TypeScript + Prisma + Vitest",
+      "labels": ["agent-ready", "sprint-1", "foundation"],
+      "body": "## Context\nSource: AGENT.md §1. Nothing can be built until the stack exists.\n\n## Task\nScaffold the app: Next.js (App Router), TypeScript strict, Prisma with a Postgres datasource, Vitest, ESLint/Prettier, and a `.env.example`.\n\n## Acceptance criteria\n- [ ] `pnpm dev` boots a landing page.\n- [ ] `pnpm test` runs (one placeholder test green).\n- [ ] Prisma schema file exists with the User model from SPEC.md §5.\n- [ ] `.env.example` has DATABASE_URL and SESSION_SECRET placeholders (no real secrets)."
+    },
+    {
+      "area": "auth",
+      "title": "Auth: signup, login, session cookie, role support",
+      "labels": ["agent-ready", "sprint-1", "auth", "security"],
+      "body": "## Context\nSource: SPEC.md §7, AGENT.md §2. Every other feature needs a signed-in user with a role.\n\n## Task\nImplement `POST /api/auth/signup` and `POST /api/auth/login`. Hash passwords, set an httpOnly session cookie, support roles CUSTOMER/PROVIDER/ADMIN.\n\n## Acceptance criteria\n- [ ] Passwords hashed (never stored plaintext).\n- [ ] Session cookie is httpOnly + Secure + SameSite; regenerated on login.\n- [ ] Signup rejects duplicate email and invalid input (Zod).\n- [ ] Unit tests for the auth service pass; no PII in logs."
+    },
+    {
+      "area": "catalog",
+      "title": "Service catalog: create + browse + filter by category",
+      "labels": ["agent-ready", "sprint-1", "catalog"],
+      "body": "## Context\nSource: SPEC.md §6-§7. Customers browse services; providers create them.\n\n## Task\nImplement `GET /api/services` (with `?category`), `GET /api/services/:id`, and `POST /api/services` (provider only). Build `/services` and `/services/:id` pages.\n\n## Acceptance criteria\n- [ ] `POST /api/services` is provider-only (403 otherwise), input validated.\n- [ ] `GET /api/services?category=` filters correctly.\n- [ ] `/services` lists active services; `/services/:id` shows detail.\n- [ ] Tests cover the provider-only authorization check."
+    },
+    {
+      "area": "availability",
+      "title": "Provider availability: set weekly windows",
+      "labels": ["agent-ready", "sprint-1", "availability"],
+      "body": "## Context\nSource: SPEC.md §5 Availability, §7 PUT /api/availability.\n\n## Task\nImplement `PUT /api/availability` (provider only) storing weekday + startMin/endMin windows, and a `/provider/availability` page to edit them.\n\n## Acceptance criteria\n- [ ] Provider can set multiple windows per weekday.\n- [ ] Validation rejects startMin >= endMin and out-of-range minutes.\n- [ ] Only the owning provider can edit their availability (server-side check).\n- [ ] Unit tests for validation + ownership pass."
+    }
+  ]
+}
