@@ -17,6 +17,19 @@ gh auth status >/dev/null 2>&1 || { echo "Not logged in. Run: gh auth login" >&2
 REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
 echo "Repo: $REPO"
 
+# Guard: refuse to seed a repo you don't own (unless running inside CI, where the
+# workflow already runs under the repo owner). Prevents a cloner from pushing
+# issues into the template author's repo — run `bash bootstrap.sh` first.
+if [ -z "${GITHUB_ACTIONS:-}" ]; then
+  ME=$(gh api user -q .login 2>/dev/null || echo "")
+  OWNER="${REPO%%/*}"
+  if [ -n "$ME" ] && [ "$ME" != "$OWNER" ]; then
+    echo "✋ origin is $REPO but you are '$ME'. You don't own this repo." >&2
+    echo "   Make it yours first:  bash bootstrap.sh" >&2
+    exit 1
+  fi
+fi
+
 # Existing issue titles (open + closed) so re-runs / CI never duplicate.
 EXISTING_TITLES=$(gh issue list --repo "$REPO" --state all --limit 500 \
   --json title -q '.[].title' 2>/dev/null || true)

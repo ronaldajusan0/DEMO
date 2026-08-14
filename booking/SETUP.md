@@ -15,22 +15,30 @@ git clone https://github.com/ronaldajusan0/DEMO.git bookit
 cd bookit
 ```
 
-## 2. Make it YOUR repo
-
-You need your own GitHub repo so the issues + Actions run under your account.
+## 2. Make it YOUR repo — one command
 
 ```bash
-# creates a new repo under your account and pushes the current branch
-gh repo create bookit --private --source=. --remote=origin --push
-
-# push the other branches too (the app lives on develop)
-git push -u origin main
-git push -u origin develop
+bash bootstrap.sh                 # or: bash bootstrap.sh my-repo-name --public
 ```
 
-> This repoints `origin` from mine to yours and uploads everything you cloned —
-> code, docs, sprints, workflows. Your teammates get the exact same thing when
-> they clone *your* repo.
+This creates a new repo under **your** account, repoints `origin` to it, pushes
+`main` + `develop`, and keeps the template as `upstream`. After it, every push,
+PR, issue, and Action runs in **your** repo — never the author's.
+
+> **Why this is required:** a plain clone leaves `origin` pointing at the
+> template author's repo. Pushing then fails with
+> `Permission … denied … 403` (you don't own it). `bootstrap.sh` fixes that.
+> The seed + build scripts also refuse to run until you own the repo, so you
+> can't accidentally push to the author.
+
+<details><summary>Manual equivalent (if you skip bootstrap.sh)</summary>
+
+```bash
+git remote rename origin upstream
+gh repo create bookit --private --source=. --remote=origin --push
+git push origin refs/remotes/upstream/develop:refs/heads/develop
+```
+</details>
 
 ## 3. Issues appear automatically
 

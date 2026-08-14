@@ -13,6 +13,17 @@ continuously until no eligible issues remain.
 - `AGENT.md` — tech stack, security guardrails, git conventions.
 - `README.md` — setup.
 
+## Preflight — you must own this repo
+
+Before any push, confirm `origin` is the runner's OWN repo. If not, STOP and tell
+the user to run `bash bootstrap.sh` first (it creates their repo and repoints origin):
+
+```bash
+ME=$(gh api user -q .login)
+OWNER=$(gh repo view --json owner -q .owner.login)
+[ "$ME" = "$OWNER" ] || { echo "You ($ME) don't own $OWNER's repo. Run: bash bootstrap.sh"; exit 1; }
+```
+
 ## Workflow
 
 1. **Fetch open, ready issues (lowest number / current sprint first):**
