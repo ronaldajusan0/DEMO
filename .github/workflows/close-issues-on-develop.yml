@@ -1,0 +1,42 @@
+name: Close issues on develop merge
+
+# Auto-closes issues when a PR is MERGED into `develop`, without waiting for a
+# release to `main`. Reads GitHub closing keywords (Closes/Fixes/Resolves #N)
+# from the PR title and body. This is how issues close "automatically without
+# merging to main" under the develop-branch workflow (see booking/AGENT.md §4).
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [develop]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  close-linked-issues:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close issues referenced by closing keywords
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          nums=$(printf '%s\n%s\n' "$PR_TITLE" "$PR_BODY" \
+            | grep -oiE '(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+#[0-9]+' \
+            | grep -oE '[0-9]+' | sort -un)
+          if [ -z "$nums" ]; then
+            echo "No closing keywords found in PR #$PR_NUMBER. Nothing to close."
+            exit 0
+          fi
+          for n in $nums; do
+            echo "Closing issue #$n (linked from PR #$PR_NUMBER)"
+            gh issue close "$n" \
+              --comment "Auto-closed: merged via #$PR_NUMBER into \`develop\`." || \
+              echo "Could not close #$n (already closed or missing)."
+          done
