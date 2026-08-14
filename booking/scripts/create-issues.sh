@@ -54,7 +54,8 @@ for FILE in "${FILES[@]}"; do
   for i in $(seq 0 $((n - 1))); do
     title=$(jq -r ".issues[$i].title" "$FILE")
     body=$(jq -r ".issues[$i].body" "$FILE")
-    mapfile -t labels < <(jq -r ".issues[$i].labels[]?" "$FILE")
+    labels=()
+    while IFS= read -r l; do [ -n "$l" ] && labels+=("$l"); done < <(jq -r ".issues[$i].labels[]?" "$FILE")
 
     echo "--- $title  [${labels[*]}]"
     if [ -n "$DRY_RUN" ]; then echo "(dry run — not created)"; continue; fi
