@@ -1,0 +1,30 @@
+{
+  "milestone": "Sprint 3 — Provider & Admin",
+  "description": "Provider calendar, service management, and admin oversight. Everything the people running BookIt need.",
+  "issues": [
+    {
+      "area": "provider",
+      "title": "Provider calendar: view booked appointments",
+      "labels": ["agent-ready", "sprint-3", "provider"],
+      "body": "## Context\nSource: SPEC.md §6 /provider/calendar. Providers need to see what's booked.\n\n## Task\nBuild `/provider/calendar` showing the signed-in provider's upcoming appointments (day/week view), backed by an appointments-by-provider query.\n\n## Acceptance criteria\n- [ ] Shows only the signed-in provider's appointments (server-side ownership check).\n- [ ] Displays customer name, service, start/end time.\n- [ ] Empty state when nothing is booked.\n- [ ] Unit test for the by-provider query + ownership."
+    },
+    {
+      "area": "provider",
+      "title": "Service management: edit + deactivate services",
+      "labels": ["agent-ready", "sprint-3", "catalog"],
+      "body": "## Context\nSource: SPEC.md §6 /provider/services, Service.active.\n\n## Task\nExtend `/provider/services` with edit and deactivate. Deactivated services stop appearing in the public catalog but keep their history.\n\n## Acceptance criteria\n- [ ] Provider can edit name, description, category, durationMin of their own service.\n- [ ] Deactivating sets active=false; it disappears from GET /api/services.\n- [ ] Only the owning provider can edit/deactivate (403 otherwise).\n- [ ] Tests cover ownership + the active filter."
+    },
+    {
+      "area": "admin",
+      "title": "Admin dashboard: users, services, bookings overview",
+      "labels": ["agent-ready", "sprint-3", "admin", "security"],
+      "body": "## Context\nSource: SPEC.md §2 admin role, §6 /admin.\n\n## Task\nBuild `/admin` with read-only lists of users, services, and appointments, plus basic search/filter.\n\n## Acceptance criteria\n- [ ] Route is ADMIN-only (403 for customer/provider), enforced server-side.\n- [ ] Lists paginate and do not leak passwordHash or session tokens.\n- [ ] No PII in logs.\n- [ ] Tests cover the admin-only authorization."
+    },
+    {
+      "area": "admin",
+      "title": "Admin action: deactivate a user",
+      "labels": ["agent-ready", "sprint-3", "admin", "security"],
+      "body": "## Context\nSource: SPEC.md §2 (admin can manage users).\n\n## Task\nAllow an admin to deactivate a user. A deactivated user cannot log in; their future appointments are cancelled and slots freed.\n\n## Acceptance criteria\n- [ ] ADMIN-only endpoint (403 otherwise).\n- [ ] Deactivated user's login is rejected.\n- [ ] Their future CONFIRMED appointments become CANCELLED and slots free up.\n- [ ] Tests cover authorization + the cascade."
+    }
+  ]
+}

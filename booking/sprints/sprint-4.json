@@ -1,0 +1,30 @@
+{
+  "milestone": "Sprint 4 — Enhancements",
+  "description": "The SPEC.md backlog: reschedule, reviews, reminders, and waitlists. Each needs its own spec + tests before building.",
+  "issues": [
+    {
+      "area": "booking",
+      "title": "Reschedule an appointment to another free slot",
+      "labels": ["agent-ready", "sprint-4", "booking"],
+      "body": "## Context\nSource: SPEC.md §4 (was out of scope for v1). Write the spec section + tests first.\n\n## Task\nAdd `POST /api/appointments/:id/reschedule` moving a booking to another free slot in one transaction (old slot frees, new slot reserved).\n\n## Acceptance criteria\n- [ ] Only the owning customer can reschedule (403 otherwise).\n- [ ] New slot must be valid + free; otherwise 409, and the original stays intact.\n- [ ] Same 24h rule as cancel applies.\n- [ ] Tests cover ownership, the 24h rule, and the atomic move."
+    },
+    {
+      "area": "reviews",
+      "title": "Reviews & ratings for completed appointments",
+      "labels": ["agent-ready", "sprint-4", "reviews"],
+      "body": "## Context\nSource: SPEC.md §4 backlog.\n\n## Task\nLet a customer leave a 1–5 rating + comment on a past, completed appointment; show the service's average rating.\n\n## Acceptance criteria\n- [ ] One review per appointment, by the customer who booked it only.\n- [ ] Rating constrained to 1..5 (Zod); comment length-limited.\n- [ ] Service detail shows average rating + count.\n- [ ] Tests cover the one-review rule + rating bounds."
+    },
+    {
+      "area": "notifications",
+      "title": "Appointment reminders (email/SMS abstraction)",
+      "labels": ["agent-ready", "sprint-4", "notifications"],
+      "body": "## Context\nSource: SPEC.md §4 backlog. Use a provider abstraction so the demo runs without a real sender.\n\n## Task\nSend a reminder 24h before an appointment via an injectable notifier (email now; SMS behind the same interface).\n\n## Acceptance criteria\n- [ ] A scheduled job selects appointments ~24h out and notifies once.\n- [ ] Notifier is injectable and faked in tests (asserted, not really sent).\n- [ ] Idempotent: a reminder is never sent twice for the same appointment.\n- [ ] No PII in logs."
+    },
+    {
+      "area": "booking",
+      "title": "Waitlist for fully-booked slots",
+      "labels": ["agent-ready", "sprint-4", "booking"],
+      "body": "## Context\nSource: SPEC.md §4 backlog.\n\n## Task\nLet a customer join a waitlist for a taken slot; when it frees (cancel/reschedule), notify the first person in line.\n\n## Acceptance criteria\n- [ ] Customer can join/leave a waitlist for a specific slot.\n- [ ] On a slot freeing, the first waitlisted customer is notified.\n- [ ] No double-notify; leaving the waitlist removes them from the queue.\n- [ ] Tests cover FIFO order + the free-slot trigger."
+    }
+  ]
+}
