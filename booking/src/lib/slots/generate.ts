@@ -89,3 +89,31 @@ export function generateSlots(
   slots.sort((a, b) => a.start.getTime() - b.start.getTime());
   return slots;
 }
+
+// True if `start` is a legitimate slot start for the service: on the grid,
+// on an available weekday, and fully inside a window. Used to reject arbitrary
+// booking times regardless of appointment overlap (that is checked separately).
+export function isValidSlotStart(
+  service: SlotServiceInput,
+  availability: AvailabilityWindowInput[],
+  start: Date,
+  stepMin = 30,
+): boolean {
+  const duration = service.durationMin;
+  if (duration <= 0 || stepMin <= 0) return false;
+  const startMs = start.getTime();
+  if (!Number.isFinite(startMs)) return false;
+
+  const minuteOfDay = (startMs - utcDayStart(start)) / MS_PER_MIN;
+  if (!Number.isInteger(minuteOfDay)) return false;
+  const endMinute = minuteOfDay + duration;
+  const weekday = start.getUTCDay();
+
+  return availability.some(
+    (w) =>
+      w.weekday === weekday &&
+      minuteOfDay >= w.startMin &&
+      endMinute <= w.endMin &&
+      (minuteOfDay - w.startMin) % stepMin === 0,
+  );
+}
