@@ -17,6 +17,14 @@ gh auth status >/dev/null 2>&1 || { echo "Not logged in. Run: gh auth login" >&2
 REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
 echo "Repo: $REPO"
 
+# Existing issue titles (open + closed) so re-runs / CI never duplicate.
+EXISTING_TITLES=$(gh issue list --repo "$REPO" --state all --limit 500 \
+  --json title -q '.[].title' 2>/dev/null || true)
+
+issue_exists() {  # $1 title  -> 0 if an issue with this exact title already exists
+  printf '%s\n' "$EXISTING_TITLES" | grep -Fxq "$1"
+}
+
 DRY_RUN=""
 FILES=()
 if [ "${1:-}" = "--all" ]; then
@@ -58,6 +66,7 @@ for FILE in "${FILES[@]}"; do
     while IFS= read -r l; do [ -n "$l" ] && labels+=("$l"); done < <(jq -r ".issues[$i].labels[]?" "$FILE")
 
     echo "--- $title  [${labels[*]}]"
+    if issue_exists "$title"; then echo "(exists — skipped)"; continue; fi
     if [ -n "$DRY_RUN" ]; then echo "(dry run — not created)"; continue; fi
 
     for l in "${labels[@]}"; do ensure_label "$l"; done
