@@ -29,20 +29,30 @@ continuously until no eligible issues remain.
    - Does it depend on an earlier, still-open issue? If so, do that one first.
 
 3. **If CONFIRMED (clear and unblocked):**
-   - Branch from `main`: `gh issue develop <number> --checkout`
+   - Branch from **`develop`** (never `main`):
+
+     ```bash
+     git switch develop && git pull --ff-only && \
+     git switch -c feat/issue-<number>
+     ```
+
    - Implement until acceptance criteria pass. **Do not edit tests to pass.**
    - Enforce the `AGENT.md` guardrails: server-side authZ, Zod validation, no
      secrets/PII in logs, parameterized queries, transaction on booking.
    - Run `pnpm test` — must be green.
-   - Commit (conventional), push, open a PR that closes the issue:
+   - Commit (conventional), push, and open a PR **targeting `develop`** that
+     closes the issue:
 
      ```bash
      git push -u origin HEAD && \
-     gh pr create --title "feat: <title>" \
+     gh pr create --base develop --title "feat: <title>" \
        --body "Implements #<number>.
 
      Closes #<number>"
      ```
+
+   - **Then STOP on this issue.** Do NOT merge your own PR. A human reviews and
+     merges into `develop`. Move on to the next issue.
 
 4. **If UNCLEAR or BLOCKED:** comment the specific blocking question on the issue,
    add label `needs-info`, and move on. Do not guess on auth, money, or data models.
@@ -55,6 +65,9 @@ continuously until no eligible issues remain.
 - Never bypass authorization or validation "to save time."
 - Never print or log emails, names, passwords, or session tokens.
 - One issue per branch per PR — no batching unrelated work.
+- **Never commit/push directly to `main` or `develop`.** Branch from `develop`.
+- **Never merge your own PR.** Open it targeting `develop` and stop; a human merges.
+- `main` is release-only — it receives `develop`, never a feature branch.
 - If `pnpm test` is red after your change, you are not done.
 
 ## Definition of Done (per issue)

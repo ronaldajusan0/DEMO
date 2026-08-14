@@ -15,6 +15,8 @@
 3. **Validate all input at the boundary** (Zod) before it touches the database.
 4. **No secrets in client code, logs, or git.** Env vars only; `.env` is ignored.
 5. **Small, reviewable changes.** One issue → one branch → one PR.
+   Branch from `develop`; PRs target `develop`; never touch `main` directly and
+   never merge your own PR (see §4).
 6. **Leave the tree green.** Run the test suite before every commit; no regressions.
 7. **Explain before large edits.** State the plan, then act.
 
@@ -55,11 +57,29 @@ Pin to current stable releases; `pnpm audit` must be clean before shipping.
 - Times stored in UTC; converted at the edge. Durations in minutes.
 - Comments explain *why*, not *what*.
 
-## 4. Git conventions
+## 4. Git conventions & branching model
 
-- Branch per issue: `feat/<slug>`, `fix/<slug>`, `chore/<slug>`.
+**Branch hierarchy — work never lands on `main` directly.**
+
+```
+  main     ← protected. Release-only. Receives merges from `develop`, nothing else.
+    ▲
+  develop  ← integration branch. All feature work merges HERE first, via PR.
+    ▲
+  feat/*   ← one branch per issue, cut FROM `develop`.
+```
+
+- **Never commit or push directly to `main` or `develop`.** Both are updated
+  only through reviewed pull requests.
+- **Cut every feature branch from `develop`**, not `main`:
+  `git switch develop && git pull && git switch -c feat/<slug>`.
+- **Feature PRs target `develop`** (`--base develop`), never `main`.
+- **`main` only ever receives `develop`** via a release PR, when a sprint is done.
+- **No instant / self-merge.** A PR must be reviewed and its checks green before
+  merge. The agent opens the PR and stops — it does **not** merge its own PR.
+- Branch names: `feat/<slug>`, `fix/<slug>`, `chore/<slug>`.
 - Conventional commits: `feat(booking): prevent double-booking`.
-- PR body ends with `Closes #<issue-number>`; never commit directly to `main`.
+- PR body ends with `Closes #<issue-number>`.
 
 ## 5. Definition of Done
 
