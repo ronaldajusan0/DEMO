@@ -27,3 +27,4 @@ npm run loop      # auto dev loop — watches files, re-runs on save
 ```
 
 No install step. Needs Node 18+ (uses the built-in test runner).
+# DEMO
